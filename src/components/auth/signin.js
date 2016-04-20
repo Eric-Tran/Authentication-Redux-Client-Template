@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { reduxForm } from 'redux-form';
+import * as actions from '../../actions';
 
 class Signin extends Component {
 	handleFormSubmit({ email, password }) {
 		console.log(email, password);
 		//Need to do something to log user in
+		this.props.signinUser({ email, password });
 	}
 
 	render() {
@@ -27,7 +29,9 @@ class Signin extends Component {
 }
 
 //First set of parens is to pass configurations, second is the component.
+//null is first argument, not using yet, mapStateToProps
+//third argument pass in actions to get access to all the actions as props
 export default reduxForm({
 	form: 'signin',
 	fields: ['email', 'password']
-})(Signin);
+}, null, actions)(Signin);
