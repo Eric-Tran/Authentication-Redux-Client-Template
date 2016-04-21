@@ -1,23 +1,46 @@
 import axios from 'axios';
+import { browserHistory } from 'react-router';
+import { 
+	AUTH_USER,
+	UNAUTH_USER,
+	AUTH_ERROR
+} from './types';
 
 const ROOT_URL = 'http://localhost:8000';
 
 export function signinUser({ email, password }) {
-	console.log("this is the email pw", "Email:", email, "pass:", password);
 	//reduxThunk gives access to dispatch function allowing us to dispatch our own actions anytime
 	//return function to get direct access to dispatch
 	return function(dispatch) {
 		//Submit email/password to the server
 		//ES6 { email: email, password: password }
 		axios.post(`${ROOT_URL}/signin`, { email, password })
-
-	//If request is good...
-	// - update state to indicate user is authenticated
-	// - Save the JWT token
-	// - redirect to the route '/feature'
-
-	//If the request is bad...
-	//- Show an error to the user
+			.then(response => {
+				//If request is good...
+				// - update state to indicate user is authenticated
+				dispatch({ type: AUTH_USER });
+				// - Save the JWT token //localStorage is native to window scope, no importing.
+				localStorage.setItem('token', response.data.token);
+				// - redirect to the route '/feature'
+				browserHistory.push('/feature');
+			})
+			.catch(() => {
+				//If the request is bad...
+				//- Show an error to the user
+				dispatch(authError('Invalid email or password.'));
+			});
 	}
-	
+}
+
+export function authError(error) {
+	return {
+		type: AUTH_ERROR,
+		payload: error
+	};
+}
+
+export function signoutUser() {
+	localStorage.removeItem('token');
+
+	return { type: UNAUTH_USER };
 }
